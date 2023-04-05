@@ -1,0 +1,22 @@
+{
+  "name": "Are you that good?",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "nodemon": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "LoL",
+    "League of Legends",
+    "API"
+  ],
+  "author": "Claudio Bellanti",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.3.4",
+    "discord.js": "13.15.0",
+    "dotenv": "^16.0.3"
+  }
+}
