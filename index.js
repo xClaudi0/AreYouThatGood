@@ -1,5 +1,6 @@
 const Discord = require("discord.js");
 const axios = require("axios");
+const stringSimilarity = require("string-similarity");
 const { Client, Intents } = Discord;
 const client = new Client({
     intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.MESSAGE_CONTENT],
@@ -41,6 +42,25 @@ function createMockingMessage(playerName, rank, tier) {
     console.log("Sending mocking message to", playerName, rank, tier)
     return `Dai ${playerName}, sei ancora bloccato a ${tier} ${rank}? Forse dovresti giocare di più! O magari cambiare gioco...😂`;
 }
+function removeEmojis(str) {
+    return str.replace(/<a?:.*:\d*>/g, '').trim();
+}
+function findSimilarChannel(channels, targetName) {
+    const cleanedTargetName = removeEmojis(targetName);
+    let bestMatch = null;
+    let maxSimilarity = 0;
+
+    channels.forEach((channel) => {
+        const cleanedChannelName = removeEmojis(channel.name);
+        const similarity = stringSimilarity.compareTwoStrings(cleanedChannelName, cleanedTargetName);
+        if (similarity > maxSimilarity) {
+            maxSimilarity = similarity;
+            bestMatch = channel;
+        }
+    });
+
+    return bestMatch;
+}
 
 async function main() {
     client.once("ready", async () => {
@@ -51,7 +71,10 @@ async function main() {
             if (rankedData && rankedData.tier !== "GOLD") {
                 const guild = client.guilds.cache.first();
                 if (guild) {
-                    const channel = guild.channels.cache.find((channel) => channel.name === DISCORD_CHANNEL_NAME);
+                    const userDefinedChannelName = DISCORD_CHANNEL_NAME
+                    const channel = findSimilarChannel(guild.channels.cache, userDefinedChannelName);
+                    console.log("Message will be delivered to channel", channel)
+
                     if (channel) {
                         const mockingMessage = createMockingMessage(PLAYER_NAME, rankedData.rank, rankedData.tier);
                         channel.send(mockingMessage);
